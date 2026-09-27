@@ -3,7 +3,7 @@ import { ShoppingCart, Store, Clock } from 'lucide-react';
 import { settingService } from '../../services/settingService';
 
 export default function Navbar({ activeTab, setActiveTab }) {
-  const [storeName, setStoreName] = useState('Toko ATK Berkah Mandiri');
+  const [storeName, setStoreName] = useState('Toko ATK Maju Jaya');
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {

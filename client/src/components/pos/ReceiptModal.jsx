@@ -16,7 +16,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, store, onNe
     generateReceiptPdf({ store, transaction });
   };
 
-  const storeName = store?.name || 'Toko ATK Berkah Mandiri';
+  const storeName = store?.name || 'Toko ATK Maju Jaya';
   const storeAddress = store?.address || 'Jl. Pendidikan No. 123, Jakarta';
   const storePhone = store?.phone || '0812-3456-7890';
   const footerNote = store?.receiptFooter || 'Terima kasih atas kunjungan Anda!\nBarang yang dibeli tidak dapat ditukar/dikembalikan.';

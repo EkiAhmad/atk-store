@@ -10,10 +10,10 @@ async function main() {
     update: {},
     create: {
       id: 1,
-      name: 'Toko ATK Berkah Mandiri',
+      name: 'Toko ATK Maju Jaya',
       address: 'Jl. Pendidikan No. 123, Jakarta Timur',
       phone: '0812-3456-7890',
-      receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Berkah Mandiri!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+      receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Maju Jaya!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
     },
   });
 

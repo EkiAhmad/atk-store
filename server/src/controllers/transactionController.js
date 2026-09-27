@@ -168,7 +168,7 @@ async function createTransaction(req, res, next) {
       data: {
         ...transactionResult,
         store: storeSetting || {
-          name: 'Toko ATK Berkah Mandiri',
+          name: 'Toko ATK Maju Jaya',
           address: 'Jl. Pendidikan No. 123',
           phone: '0812-3456-7890',
         },
@@ -262,7 +262,7 @@ async function getTransactionById(req, res, next) {
       data: {
         ...transaction,
         store: store || {
-          name: 'Toko ATK Berkah Mandiri',
+          name: 'Toko ATK Maju Jaya',
           address: 'Jl. Pendidikan No. 123',
           phone: '0812-3456-7890',
         },

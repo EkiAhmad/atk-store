@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const COLORS = ['#16a34a', '#2563eb', '#d97706', '#9333ea', '#0891b2', '#e11d48'];
 
@@ -24,6 +17,26 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
+function CustomLegend({ data }) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-1 text-center">
+      {data.map((item, index) => (
+        <div
+          key={item.name}
+          className="flex items-center gap-2 min-w-0 max-w-full px-1"
+          style={{ maxWidth: 'calc(50% - 0.5rem)' }}
+        >
+          <span
+            className="h-2.5 w-2.5 rounded-sm flex-shrink-0"
+            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+          />
+          <span className="text-[11px] font-medium text-slate-600 truncate">{item.name}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function CategoryPieChart({ data }) {
   if (!data || data.length === 0) {
     return (
@@ -34,30 +47,29 @@ export default function CategoryPieChart({ data }) {
   }
 
   return (
-    <div className="w-full h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Tooltip content={<CustomTooltip />} />
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={55}
-            outerRadius={85}
-            paddingAngle={4}
-            dataKey="productCount"
-          >
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            formatter={(value) => <span className="text-xs text-slate-600 font-medium">{value}</span>}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+    <div className="w-full">
+      <div className="mx-auto h-56 max-w-[280px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Tooltip content={<CustomTooltip />} />
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={52}
+              outerRadius={82}
+              paddingAngle={4}
+              dataKey="productCount"
+            >
+              {data.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <CustomLegend data={data} />
     </div>
   );
 }

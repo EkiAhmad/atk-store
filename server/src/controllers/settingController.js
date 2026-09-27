@@ -8,10 +8,10 @@ async function getSettings(req, res, next) {
       settings = await prisma.storeSetting.create({
         data: {
           id: 1,
-          name: 'Toko ATK Berkah Mandiri',
+          name: 'Toko ATK Maju Jaya',
           address: 'Jl. Pendidikan No. 123, Jakarta',
           phone: '0812-3456-7890',
-          receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Berkah Mandiri!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+          receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Maju Jaya!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
         },
       });
     }
@@ -33,14 +33,14 @@ async function updateSettings(req, res, next) {
     const updated = await prisma.storeSetting.upsert({
       where: { id: 1 },
       update: {
-        name: name ? name.trim() : 'Toko ATK Berkah Mandiri',
+        name: name ? name.trim() : 'Toko ATK Maju Jaya',
         address: address ? address.trim() : '',
         phone: phone ? phone.trim() : '',
         receiptFooter: receiptFooter ? receiptFooter.trim() : '',
       },
       create: {
         id: 1,
-        name: name ? name.trim() : 'Toko ATK Berkah Mandiri',
+        name: name ? name.trim() : 'Toko ATK Maju Jaya',
         address: address ? address.trim() : '',
         phone: phone ? phone.trim() : '',
         receiptFooter: receiptFooter ? receiptFooter.trim() : '',

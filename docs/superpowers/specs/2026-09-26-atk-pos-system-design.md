@@ -184,7 +184,7 @@ model StockMovement {
 // Pengaturan Toko
 model StoreSetting {
   id            Int     @id @default(1)
-  name          String  @default("Toko ATK Berkah Mandiri")
+  name          String  @default("Toko ATK Maju Jaya")
   address       String? @default("Jl. Pendidikan No. 123, Jakarta")
   phone         String? @default("081234567890")
   receiptFooter String? @default("Terima kasih atas kunjungan Anda! Barang yang dibeli tidak dapat ditukar/dikembalikan.")

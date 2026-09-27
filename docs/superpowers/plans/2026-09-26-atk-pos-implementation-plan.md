@@ -27,7 +27,7 @@ This plan details the step-by-step development process to implement the complete
 - Create `server/prisma/seed.js` with comprehensive initial data:
   - Standard ATK categories (Alat Tulis, Kertas & Buku, Map & Folder, Perlengkapan Kantor, Pewarna & Cat).
   - 15+ realistic ATK products (Pulpen Standard AE7, Buku Tulis Sinar Dunia 38 lbr, Kertas HVS A4 70gr PaperOne, Map Snellhecter, Penggaris Besi 30cm, Tipp-Ex Joyko, Binder Clip No. 107, etc.).
-  - Default Store Settings ("Toko ATK Berkah Mandiri").
+  - Default Store Settings ("Toko ATK Maju Jaya").
 - Run Prisma migration and seed database.
 
 ---

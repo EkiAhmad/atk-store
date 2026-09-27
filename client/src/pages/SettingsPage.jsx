@@ -77,7 +77,7 @@ export default function SettingsPage() {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Contoh: Toko ATK Berkah Mandiri"
+              placeholder="Contoh: Toko ATK Maju Jaya"
               className="w-full mt-1.5 px-3.5 py-2.5 text-sm font-bold text-slate-900 bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
           </div>
