@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/errorHandler');
+const { logger } = require('./utils/logger');
 
+const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
@@ -20,6 +22,14 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Simple HTTP request logger using Winston
+app.use((req, res, next) => {
+  if (req.method !== 'OPTIONS') {
+    logger.info(`[HTTP] ${req.method} ${req.originalUrl} - IP: ${req.ip || '127.0.0.1'}`);
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -30,6 +40,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/transactions', transactionRoutes);

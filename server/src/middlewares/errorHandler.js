@@ -1,5 +1,10 @@
+const { logger } = require('../utils/logger');
+
 function errorHandler(err, req, res, next) {
-  console.error('[Error Handler]', err);
+  logger.error(`[Error] ${req.method} ${req.originalUrl} - ${err.message}`, {
+    stack: err.stack,
+    body: req.body,
+  });
 
   // Prisma unique constraint violation
   if (err.code === 'P2002') {

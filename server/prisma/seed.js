@@ -1,23 +1,62 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding ATK database...');
+  console.log('Seeding ATK database with Users, Settings, and Products...');
 
-  // 1. Settings
+  // 1. Users (Admin & Kasir)
+  const passwordHash = await bcrypt.hash('kunci123', 10);
+
+  const adminUser = await prisma.user.upsert({
+    where: { username: 'admin' },
+    update: {
+      password: passwordHash,
+      name: 'Administrator Toko',
+      role: 'ADMIN',
+    },
+    create: {
+      username: 'admin',
+      password: passwordHash,
+      name: 'Administrator Toko',
+      role: 'ADMIN',
+    },
+  });
+
+  const kasirUser = await prisma.user.upsert({
+    where: { username: 'kasir' },
+    update: {
+      password: passwordHash,
+      name: 'Kasir Toko',
+      role: 'KASIR',
+    },
+    create: {
+      username: 'kasir',
+      password: passwordHash,
+      name: 'Kasir Toko',
+      role: 'KASIR',
+    },
+  });
+
+  console.log('Seeded Users:', {
+    admin: adminUser.username,
+    kasir: kasirUser.username,
+  });
+
+  // 2. Settings
   await prisma.storeSetting.upsert({
     where: { id: 1 },
     update: {},
     create: {
       id: 1,
-      name: 'Toko ATK Maju Jaya',
+      name: 'Toko ATK Berkah Mandiri',
       address: 'Jl. Pendidikan No. 123, Jakarta Timur',
       phone: '0812-3456-7890',
-      receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Maju Jaya!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+      receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Berkah Mandiri!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
     },
   });
 
-  // 2. Categories
+  // 3. Categories
   const categoriesData = [
     { name: 'Alat Tulis', description: 'Pulpen, pensil, spidol, penghapus, tipe-x, rautan' },
     { name: 'Kertas & Buku', description: 'Buku tulis, kertas HVS, binder, folio, nota kontan' },
@@ -37,7 +76,7 @@ async function main() {
     categoryMap[cat.name] = created.id;
   }
 
-  // 3. Products
+  // 4. Products
   const productsData = [
     {
       barcode: '8993175537012',
@@ -225,7 +264,7 @@ async function main() {
       category: 'Aksesoris & Lainnya',
       buyPrice: 4500,
       sellPrice: 7000,
-      stock: 4, // Intentionally low to test low stock alerts
+      stock: 4,
       minStock: 10,
       unit: 'pad',
     },
@@ -235,7 +274,7 @@ async function main() {
       category: 'Aksesoris & Lainnya',
       buyPrice: 4000,
       sellPrice: 6500,
-      stock: 3, // Intentionally low to test low stock alerts
+      stock: 3,
       minStock: 10,
       unit: 'box',
     },
@@ -269,101 +308,6 @@ async function main() {
             quantity: prod.stock,
             notes: 'Stok awal inisialisasi sistem',
           },
-        },
-      },
-    });
-  }
-
-  // 4. Sample Transactions to populate dashboard
-  const sampleProduct1 = await prisma.product.findUnique({ where: { barcode: '8993175537012' } });
-  const sampleProduct2 = await prisma.product.findUnique({ where: { barcode: '8998866100120' } });
-  const sampleProduct3 = await prisma.product.findUnique({ where: { barcode: '8993988102018' } });
-
-  const existingTx = await prisma.transaction.count();
-  if (existingTx === 0 && sampleProduct1 && sampleProduct2 && sampleProduct3) {
-    const tx1Date = new Date();
-    tx1Date.setDate(tx1Date.getDate() - 1); // Yesterday
-
-    await prisma.transaction.create({
-      data: {
-        invoiceNumber: 'INV-20260925-0001',
-        date: tx1Date,
-        totalAmount: 96000,
-        discountAmount: 0,
-        taxAmount: 0,
-        finalAmount: 96000,
-        paymentMethod: 'CASH',
-        amountPaid: 100000,
-        changeAmount: 4000,
-        cashierName: 'Kasir Utama',
-        items: {
-          create: [
-            {
-              productId: sampleProduct1.id,
-              productName: sampleProduct1.name,
-              barcode: sampleProduct1.barcode,
-              price: sampleProduct1.sellPrice,
-              costPrice: sampleProduct1.buyPrice,
-              quantity: 2,
-              subtotal: 6000,
-            },
-            {
-              productId: sampleProduct2.id,
-              productName: sampleProduct2.name,
-              barcode: sampleProduct2.barcode,
-              price: sampleProduct2.sellPrice,
-              costPrice: sampleProduct2.buyPrice,
-              quantity: 1,
-              subtotal: 53000,
-            },
-            {
-              productId: sampleProduct3.id,
-              productName: sampleProduct3.name,
-              barcode: sampleProduct3.barcode,
-              price: sampleProduct3.sellPrice,
-              costPrice: sampleProduct3.buyPrice,
-              quantity: 1,
-              subtotal: 40000,
-            },
-          ],
-        },
-      },
-    });
-
-    const tx2Date = new Date(); // Today
-    await prisma.transaction.create({
-      data: {
-        invoiceNumber: 'INV-20260926-0001',
-        date: tx2Date,
-        totalAmount: 46000,
-        discountAmount: 0,
-        taxAmount: 0,
-        finalAmount: 46000,
-        paymentMethod: 'QRIS',
-        amountPaid: 46000,
-        changeAmount: 0,
-        cashierName: 'Kasir Utama',
-        items: {
-          create: [
-            {
-              productId: sampleProduct1.id,
-              productName: sampleProduct1.name,
-              barcode: sampleProduct1.barcode,
-              price: sampleProduct1.sellPrice,
-              costPrice: sampleProduct1.buyPrice,
-              quantity: 2,
-              subtotal: 6000,
-            },
-            {
-              productId: sampleProduct3.id,
-              productName: sampleProduct3.name,
-              barcode: sampleProduct3.barcode,
-              price: sampleProduct3.sellPrice,
-              costPrice: sampleProduct3.buyPrice,
-              quantity: 1,
-              subtotal: 40000,
-            },
-          ],
         },
       },
     });

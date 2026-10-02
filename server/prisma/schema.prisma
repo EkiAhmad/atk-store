@@ -7,6 +7,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Pengguna Sistem (Admin & Kasir)
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // Hashed with bcrypt
+  name      String
+  role      String   @default("KASIR") // ADMIN or KASIR
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
 // Kategori Produk ATK (Alat Tulis, Kertas & Buku, Map/Folder, dll.)
 model Category {
   id          Int       @id @default(autoincrement())
@@ -98,7 +112,7 @@ model StockMovement {
 // Pengaturan Toko
 model StoreSetting {
   id            Int     @id @default(1)
-  name          String  @default("Toko ATK Maju Jaya")
+  name          String  @default("Toko ATK Berkah Mandiri")
   address       String? @default("Jl. Pendidikan No. 123, Jakarta")
   phone         String? @default("081234567890")
   receiptFooter String? @default("Terima kasih atas kunjungan Anda! Barang yang dibeli tidak dapat ditukar/dikembalikan.")

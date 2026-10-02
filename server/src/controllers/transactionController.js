@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { logTransaction } = require('../utils/logger');
 
 /**
  * Generate unique sequential invoice number: INV-YYYYMMDD-XXXX
@@ -158,6 +159,9 @@ async function createTransaction(req, res, next) {
 
       return createdTx;
     });
+
+    // Record non-SQL file log
+    logTransaction(transactionResult);
 
     // Fetch store settings for receipt
     const storeSetting = await prisma.storeSetting.findUnique({ where: { id: 1 } });

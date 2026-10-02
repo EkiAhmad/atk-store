@@ -19,15 +19,15 @@ const CustomTooltip = ({ active, payload }) => {
 
 function CustomLegend({ data }) {
   return (
-    <div className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-1 text-center">
+    <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 px-1">
       {data.map((item, index) => (
         <div
           key={item.name}
-          className="flex items-center gap-2 min-w-0 max-w-full px-1"
-          style={{ maxWidth: 'calc(50% - 0.5rem)' }}
+          className="flex items-center gap-1.5 min-w-0"
+          title={`${item.name}: ${item.productCount} Produk`}
         >
           <span
-            className="h-2.5 w-2.5 rounded-sm flex-shrink-0"
+            className="h-2.5 w-2.5 rounded-xs flex-shrink-0"
             style={{ backgroundColor: COLORS[index % COLORS.length] }}
           />
           <span className="text-[11px] font-medium text-slate-600 truncate">{item.name}</span>

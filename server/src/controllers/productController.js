@@ -5,6 +5,7 @@ const {
   parseUploadedFile,
   generateProductExportWorkbook,
 } = require('../utils/excelHelper');
+const { logActivity } = require('../utils/logger');
 
 // Get products with search, filters, pagination
 async function getProducts(req, res, next) {
@@ -296,6 +297,15 @@ async function adjustStock(req, res, next) {
       return updated;
     });
 
+    logActivity('ADJUST_STOCK', {
+      productId: result.id,
+      productName: result.name,
+      adjustedQty: qty,
+      newStock: result.stock,
+      unit: result.unit,
+      notes: notes || '',
+    }, req.user);
+
     res.json({
       success: true,
       message: `Stok produk ${result.name} berhasil disesuaikan menjadi ${result.stock} ${result.unit}.`,
@@ -463,6 +473,14 @@ async function importProducts(req, res, next) {
         }
       }
     });
+
+    logActivity('IMPORT_EXCEL_CSV', {
+      file: req.file.originalname,
+      totalRows: totalRowsProcessed,
+      createdCount,
+      restockedCount,
+      errorsCount: processErrors.length,
+    }, req.user);
 
     res.json({
       success: true,

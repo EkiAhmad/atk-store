@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Percent, Tag, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/formatters';
 
 export default function CartPanel({ onOpenPaymentModal }) {
+  const { user } = useAuth();
   const {
     cartItems,
     updateQuantity,
@@ -19,6 +21,12 @@ export default function CartPanel({ onOpenPaymentModal }) {
   } = useCart();
 
   const [showDiscountInput, setShowDiscountInput] = useState(false);
+
+  useEffect(() => {
+    if (user?.name && cashierName === 'Kasir Toko') {
+      setCashierName(user.name);
+    }
+  }, [user, cashierName, setCashierName]);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[calc(100vh-100px)] sticky top-20">
