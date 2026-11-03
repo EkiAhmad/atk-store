@@ -2,20 +2,27 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middlewares/upload');
 const productController = require('../controllers/productController');
+const { verifyToken, requireAdmin } = require('../middlewares/auth');
 
-// Template & Export/Import routes (Placed before /:id to prevent route clash)
-router.get('/template', productController.downloadTemplate);
-router.get('/template-csv', productController.downloadCsvTemplate);
-router.get('/export', productController.exportProducts);
-router.post('/import', upload.single('file'), productController.importProducts);
+// T-06: Seluruh rute produk memerlukan token otentikasi
+router.use(verifyToken);
+
+// Template & Export/Import routes (Khusus Administrator)
+router.get('/template', requireAdmin, productController.downloadTemplate);
+router.get('/template-csv', requireAdmin, productController.downloadCsvTemplate);
+router.get('/export', requireAdmin, productController.exportProducts);
+router.post('/import', requireAdmin, upload.single('file'), productController.importProducts);
 
 // Standard product routes
+// Kasir & Admin dapat membaca produk untuk pencarian barang & scanning barcode di POS
 router.get('/', productController.getProducts);
 router.get('/barcode/:barcode', productController.getProductByBarcode);
 router.get('/:id', productController.getProductById);
-router.post('/', productController.createProduct);
-router.put('/:id', productController.updateProduct);
-router.post('/:id/adjust-stock', productController.adjustStock);
-router.delete('/:id', productController.deleteProduct);
+
+// Penulisan produk, perubahan stok manual, dan penghapusan hanya untuk Administrator
+router.post('/', requireAdmin, productController.createProduct);
+router.put('/:id', requireAdmin, productController.updateProduct);
+router.post('/:id/adjust-stock', requireAdmin, productController.adjustStock);
+router.delete('/:id', requireAdmin, productController.deleteProduct);
 
 module.exports = router;

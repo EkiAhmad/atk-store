@@ -8,9 +8,9 @@ import { formatCurrency, formatDateTime } from './formatters';
 export function generateSalesReportPdf({ store, summary, transactions, dateRangeLabel }) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  const storeName = store?.name || 'TOKO ATK BERKAH MANDIRI';
-  const storeAddress = store?.address || 'Jl. Pendidikan No. 123, Jakarta';
-  const storePhone = store?.phone || '0812-3456-7890';
+  const storeName = store?.name || 'TOKO ATK BAROKAH';
+  const storeAddress = store?.address || 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk';
+  const storePhone = store?.phone || '081259878173';
 
   // 1. Header & Store Info
   doc.setFont('helvetica', 'bold');
@@ -129,9 +129,9 @@ export function generateSalesReportPdf({ store, summary, transactions, dateRange
 export function generateReceiptPdf({ store, transaction }) {
   const doc = new jsPDF({ unit: 'mm', format: [80, 200] }); // 80mm roll width
 
-  const storeName = store?.name || 'TOKO ATK BERKAH MANDIRI';
-  const storeAddress = store?.address || 'Jl. Pendidikan No. 123, Jakarta';
-  const storePhone = store?.phone || '0812-3456-7890';
+  const storeName = store?.name || 'TOKO ATK BAROKAH';
+  const storeAddress = store?.address || 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk';
+  const storePhone = store?.phone || '081259878173';
   const footer = store?.receiptFooter || 'Terima kasih atas kunjungan Anda!';
 
   doc.setFont('courier', 'bold');

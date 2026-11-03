@@ -135,9 +135,14 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Top Selling Products (7 cols) */}
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-          <div className="mb-4">
-            <h3 className="text-sm font-bold text-slate-900">Produk ATK Terlaris (Top Selling)</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Berdasarkan total kuantitas barang yang terjual</p>
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Produk ATK Terlaris</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Berdasarkan akumulasi kuantitas penjualan sepanjang waktu</p>
+            </div>
+            <span className="text-[11px] font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
+              Sepanjang Waktu
+            </span>
           </div>
           <TopSellingChart data={analytics?.topSelling || []} />
         </div>

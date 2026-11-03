@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'atk-pos-secret-key-2026-secure';
+// T-06: Wajib menggunakan JWT_SECRET dari variabel lingkungan (.env) tanpa fallback hardcoded
+if (!process.env.JWT_SECRET) {
+  throw new Error('FATAL: Variabel lingkungan JWT_SECRET wajib dikonfigurasi dalam file .env');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Middleware to verify JWT token in Authorization: Bearer <token>

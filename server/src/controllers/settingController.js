@@ -8,10 +8,10 @@ async function getSettings(req, res, next) {
       settings = await prisma.storeSetting.create({
         data: {
           id: 1,
-          name: 'Toko ATK Maju Jaya',
-          address: 'Jl. Pendidikan No. 123, Jakarta',
-          phone: '0812-3456-7890',
-          receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Maju Jaya!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+          name: 'TOKO ATK BAROKAH',
+          address: 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk',
+          phone: '081259878173',
+          receiptFooter: 'Terima kasih telah berbelanja di TOKO ATK BAROKAH!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
         },
       });
     }
@@ -33,16 +33,16 @@ async function updateSettings(req, res, next) {
     const updated = await prisma.storeSetting.upsert({
       where: { id: 1 },
       update: {
-        name: name ? name.trim() : 'Toko ATK Maju Jaya',
-        address: address ? address.trim() : '',
-        phone: phone ? phone.trim() : '',
+        name: name ? name.trim() : 'TOKO ATK BAROKAH',
+        address: address ? address.trim() : 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk',
+        phone: phone ? phone.trim() : '081259878173',
         receiptFooter: receiptFooter ? receiptFooter.trim() : '',
       },
       create: {
         id: 1,
-        name: name ? name.trim() : 'Toko ATK Maju Jaya',
-        address: address ? address.trim() : '',
-        phone: phone ? phone.trim() : '',
+        name: name ? name.trim() : 'TOKO ATK BAROKAH',
+        address: address ? address.trim() : 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk',
+        phone: phone ? phone.trim() : '081259878173',
         receiptFooter: receiptFooter ? receiptFooter.trim() : '',
       },
     });

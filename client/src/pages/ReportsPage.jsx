@@ -5,7 +5,7 @@ import ReceiptModal from '../components/pos/ReceiptModal';
 import { reportService } from '../services/reportService';
 import { transactionService } from '../services/transactionService';
 import { settingService } from '../services/settingService';
-import { formatCurrency, formatDateTime } from '../utils/formatters';
+import { formatCurrency, formatDateTime, toLocalDateString } from '../utils/formatters';
 import { generateSalesReportPdf } from '../utils/pdfExport';
 import { useToast } from '../context/ToastContext';
 import {
@@ -36,16 +36,15 @@ export default function ReportsPage() {
 
   const getDateRange = useCallback(() => {
     const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);
+    const todayStr = toLocalDateString(now);
 
     if (dateFilterType === 'today') {
       return { startDate: todayStr, endDate: todayStr, label: 'Hari Ini' };
     }
     if (dateFilterType === '7days') {
-      const past = new Date(now);
-      past.setDate(past.getDate() - 6);
+      const past = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
       return {
-        startDate: past.toISOString().slice(0, 10),
+        startDate: toLocalDateString(past),
         endDate: todayStr,
         label: '7 Hari Terakhir',
       };
@@ -53,7 +52,7 @@ export default function ReportsPage() {
     if (dateFilterType === 'month') {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       return {
-        startDate: startOfMonth.toISOString().slice(0, 10),
+        startDate: toLocalDateString(startOfMonth),
         endDate: todayStr,
         label: 'Bulan Ini',
       };

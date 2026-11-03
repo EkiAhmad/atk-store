@@ -46,13 +46,18 @@ async function main() {
   // 2. Settings
   await prisma.storeSetting.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      name: 'TOKO ATK BAROKAH',
+      address: 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk',
+      phone: '081259878173',
+      receiptFooter: 'Terima kasih telah berbelanja di TOKO ATK BAROKAH!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+    },
     create: {
       id: 1,
-      name: 'Toko ATK Berkah Mandiri',
-      address: 'Jl. Pendidikan No. 123, Jakarta Timur',
-      phone: '0812-3456-7890',
-      receiptFooter: 'Terima kasih telah berbelanja di Toko ATK Berkah Mandiri!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
+      name: 'TOKO ATK BAROKAH',
+      address: 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk',
+      phone: '081259878173',
+      receiptFooter: 'Terima kasih telah berbelanja di TOKO ATK BAROKAH!\nBarang yang sudah dibeli tidak dapat ditukar/dikembalikan.',
     },
   });
 

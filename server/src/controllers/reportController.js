@@ -2,22 +2,31 @@ const prisma = require('../config/prisma');
 const XLSX = require('xlsx');
 const { generateSalesReportWorkbook } = require('../utils/excelHelper');
 
+/**
+ * T-03: Helper format tanggal ke format lokal YYYY-MM-DD
+ * Mencegah pergeseran tanggal akibat konversi UTC toISOString()
+ */
+function toLocalDateKey(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Get Dashboard KPIs and Chart Visualizations
 async function getDashboardAnalytics(req, res, next) {
   try {
     const now = new Date();
 
-    // Start of today
-    const startOfToday = new Date(now);
-    startOfToday.setHours(0, 0, 0, 0);
+    // Start of today (berdasarkan waktu lokal)
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
-    // Start of yesterday
-    const startOfYesterday = new Date(startOfToday);
-    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-    const endOfYesterday = new Date(startOfToday);
-    endOfYesterday.setMilliseconds(-1);
+    // Start of yesterday (berdasarkan waktu lokal)
+    const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0, 0);
+    const endOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, -1);
 
-    // Start of this month
+    // Start of this month (berdasarkan waktu lokal)
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
 
     // 1. KPI Queries in parallel
@@ -75,9 +84,8 @@ async function getDashboardAnalytics(req, res, next) {
     const todayTransactionsCount = todaySales._count.id || 0;
     const monthTransactionsCount = monthSales._count.id || 0;
 
-    // Daily revenue trend (Last 7 days)
-    const sevenDaysAgo = new Date(startOfToday);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    // Daily revenue trend (Last 7 days sesuai tanggal lokal)
+    const sevenDaysAgo = new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() - 6, 0, 0, 0, 0);
 
     const rawTransactionsLast7Days = await prisma.transaction.findMany({
       where: { date: { gte: sevenDaysAgo } },
@@ -87,15 +95,14 @@ async function getDashboardAnalytics(req, res, next) {
 
     const daysMap = new Map();
     for (let i = 0; i < 7; i++) {
-      const d = new Date(sevenDaysAgo);
-      d.setDate(d.getDate() + i);
-      const dateStr = d.toISOString().slice(0, 10);
+      const d = new Date(sevenDaysAgo.getFullYear(), sevenDaysAgo.getMonth(), sevenDaysAgo.getDate() + i);
+      const dateStr = toLocalDateKey(d);
       const label = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
       daysMap.set(dateStr, { date: dateStr, label, revenue: 0, transactions: 0 });
     }
 
     rawTransactionsLast7Days.forEach((t) => {
-      const dateStr = new Date(t.date).toISOString().slice(0, 10);
+      const dateStr = toLocalDateKey(t.date);
       if (daysMap.has(dateStr)) {
         const item = daysMap.get(dateStr);
         item.revenue += Number(t.finalAmount);
@@ -277,7 +284,7 @@ async function exportSalesExcel(req, res, next) {
     const wb = generateSalesReportWorkbook(transactions);
     const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    const timestamp = new Date().toISOString().slice(0, 10);
+    const timestamp = toLocalDateKey(new Date());
     res.setHeader('Content-Disposition', `attachment; filename="Laporan_Penjualan_ATK_${timestamp}.xlsx"`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.send(buffer);

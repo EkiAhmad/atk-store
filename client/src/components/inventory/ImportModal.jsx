@@ -50,15 +50,29 @@ export default function ImportModal({ isOpen, onClose, onSuccess }) {
         }
 
         const headers = jsonRows[0].map((h) => String(h).trim().toLowerCase());
-        const findIdx = (keywords) => headers.findIndex((h) => keywords.some((k) => h.includes(k)));
 
-        const nameIdx = findIdx(['nama', 'produk', 'item', 'barang']);
-        const barcodeIdx = findIdx(['barcode', 'kode']);
-        const catIdx = findIdx(['kategori', 'category']);
-        const buyIdx = findIdx(['harga beli', 'modal', 'beli']);
-        const sellIdx = findIdx(['harga jual', 'jual']);
-        const stockIdx = findIdx(['stok', 'stock', 'qty']);
-        const unitIdx = findIdx(['satuan', 'unit']);
+        // T-02 Fix: Kolom barcode/kode
+        const barcodeIdx = headers.findIndex((h) => h.includes('barcode') || h.includes('kode'));
+
+        // T-02 Fix: Prioritaskan 'nama', dan hindari mencocokkan 'barang' pada kolom barcode/kode
+        let nameIdx = headers.findIndex((h) => h.includes('nama'));
+        if (nameIdx === -1) {
+          nameIdx = headers.findIndex(
+            (h) => (h.includes('produk') || h.includes('item') || h.includes('barang')) &&
+                   !h.includes('barcode') &&
+                   !h.includes('kode')
+          );
+        }
+
+        const catIdx = headers.findIndex((h) => h.includes('kategori') || h.includes('category'));
+        const buyIdx = headers.findIndex((h) => h.includes('modal') || h.includes('harga beli') || h.includes('beli'));
+        const sellIdx = headers.findIndex(
+          (h) => (h.includes('harga jual') || h.includes('jual')) && !h.includes('beli') && !h.includes('modal')
+        );
+        const stockIdx = headers.findIndex(
+          (h) => (h.includes('stok') || h.includes('stock') || h.includes('qty')) && !h.includes('min')
+        );
+        const unitIdx = headers.findIndex((h) => h.includes('satuan') || h.includes('unit'));
 
         if (nameIdx === -1) {
           setPreviewErrors(['Kolom "Nama Produk" tidak ditemukan pada header file!']);

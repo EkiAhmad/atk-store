@@ -48,3 +48,14 @@ export function formatDateTime(dateString) {
     minute: '2-digit',
   }).format(date);
 }
+
+/**
+ * Format Date object to local YYYY-MM-DD (menghindari offset timezone UTC)
+ */
+export function toLocalDateString(date = new Date()) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

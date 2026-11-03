@@ -23,10 +23,10 @@ export default function CartPanel({ onOpenPaymentModal }) {
   const [showDiscountInput, setShowDiscountInput] = useState(false);
 
   useEffect(() => {
-    if (user?.name && cashierName === 'Kasir Toko') {
+    if (user?.name) {
       setCashierName(user.name);
     }
-  }, [user, cashierName, setCashierName]);
+  }, [user?.name, setCashierName]);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[calc(100vh-100px)] sticky top-20">

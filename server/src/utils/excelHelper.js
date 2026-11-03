@@ -83,17 +83,33 @@ function parseUploadedFile(buffer) {
   // Row 0 is header
   const headerRow = rows[0].map((h) => String(h).trim().toLowerCase());
 
-  // Find column indices
-  const findIdx = (keywords) => headerRow.findIndex((h) => keywords.some((k) => h.includes(k)));
+  // T-02 Fix: Pencocokan kolom yang presisi & terprioritas
+  // Kolom barcode/kode
+  const barcodeIdx = headerRow.findIndex((h) => h.includes('barcode') || h.includes('kode'));
 
-  const barcodeIdx = findIdx(['barcode', 'kode']);
-  const nameIdx = findIdx(['nama', 'produk', 'item', 'barang']);
-  const categoryIdx = findIdx(['kategori', 'category']);
-  const buyPriceIdx = findIdx(['harga beli', 'modal', 'beli', 'buy', 'cost']);
-  const sellPriceIdx = findIdx(['harga jual', 'jual', 'sell', 'price']);
-  const stockIdx = findIdx(['stok', 'stock', 'qty', 'jumlah']);
-  const minStockIdx = findIdx(['min', 'minimal', 'minimum']);
-  const unitIdx = findIdx(['satuan', 'unit']);
+  // Kolom nama produk: prioritaskan kata 'nama'. Jangan mencocokkan 'barang' jika terdapat 'barcode' atau 'kode'
+  let nameIdx = headerRow.findIndex((h) => h.includes('nama'));
+  if (nameIdx === -1) {
+    nameIdx = headerRow.findIndex(
+      (h) => (h.includes('produk') || h.includes('item') || h.includes('barang')) &&
+             !h.includes('barcode') &&
+             !h.includes('kode')
+    );
+  }
+
+  const categoryIdx = headerRow.findIndex((h) => h.includes('kategori') || h.includes('category'));
+  const buyPriceIdx = headerRow.findIndex((h) => h.includes('modal') || h.includes('harga beli') || h.includes('beli') || h.includes('cost'));
+  const sellPriceIdx = headerRow.findIndex(
+    (h) => (h.includes('harga jual') || h.includes('jual') || h.includes('sell') || h.includes('price')) &&
+           !h.includes('beli') &&
+           !h.includes('modal')
+  );
+  const stockIdx = headerRow.findIndex(
+    (h) => (h.includes('stok') || h.includes('stock') || h.includes('qty') || h.includes('jumlah')) &&
+           !h.includes('min')
+  );
+  const minStockIdx = headerRow.findIndex((h) => h.includes('min') || h.includes('minimal') || h.includes('minimum'));
+  const unitIdx = headerRow.findIndex((h) => h.includes('satuan') || h.includes('unit'));
 
   if (nameIdx === -1) {
     throw new Error('Kolom "Nama Produk" tidak ditemukan pada baris header file.');
