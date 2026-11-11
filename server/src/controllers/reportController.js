@@ -178,18 +178,19 @@ async function getSalesReport(req, res, next) {
     const { startDate, endDate } = req.query;
 
     const where = {};
-    if (startDate || endDate) {
-      where.date = {};
-      if (startDate) {
-        const start = new Date(startDate);
-        start.setHours(0, 0, 0, 0);
-        where.date.gte = start;
-      }
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        where.date.lte = end;
-      }
+    const isValidDate = (d) => d && d !== 'undefined' && d !== 'null' && !isNaN(new Date(d).getTime());
+
+    if (isValidDate(startDate)) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      where.date = where.date || {};
+      where.date.gte = start;
+    }
+    if (isValidDate(endDate)) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      where.date = where.date || {};
+      where.date.lte = end;
     }
 
     const transactions = await prisma.transaction.findMany({
@@ -261,18 +262,19 @@ async function exportSalesExcel(req, res, next) {
     const { startDate, endDate } = req.query;
 
     const where = {};
-    if (startDate || endDate) {
-      where.date = {};
-      if (startDate) {
-        const start = new Date(startDate);
-        start.setHours(0, 0, 0, 0);
-        where.date.gte = start;
-      }
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        where.date.lte = end;
-      }
+    const isValidDate = (d) => d && d !== 'undefined' && d !== 'null' && !isNaN(new Date(d).getTime());
+
+    if (isValidDate(startDate)) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      where.date = where.date || {};
+      where.date.gte = start;
+    }
+    if (isValidDate(endDate)) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      where.date = where.date || {};
+      where.date.lte = end;
     }
 
     const transactions = await prisma.transaction.findMany({

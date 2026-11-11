@@ -69,6 +69,16 @@ export default function InventoryPage() {
     }
   };
 
+  const handleExport = async (format = 'xlsx') => {
+    try {
+      toast.info(`Menyiapkan data ekspor ${format.toUpperCase()}...`);
+      await productService.exportProducts(format, selectedCategory);
+      toast.success(`Data katalog ATK berhasil diekspor ke ${format.toUpperCase()}!`);
+    } catch (err) {
+      toast.error(err.message || 'Gagal mengekspor data.');
+    }
+  };
+
   // Filtered by Category and Low Stock toggle
   const filteredData = products.filter((p) => {
     if (selectedCategory && p.categoryId !== parseInt(selectedCategory, 10)) {
@@ -212,23 +222,23 @@ export default function InventoryPage() {
 
           {/* Export Dropdown / Buttons */}
           <div className="flex items-center bg-white border border-slate-200 rounded-xl p-0.5 shadow-xs">
-            <a
-              href={productService.getExportUrl('xlsx')}
-              download
+            <button
+              type="button"
+              onClick={() => handleExport('xlsx')}
               title="Download Seluruh Data ke Excel (.xlsx)"
-              className="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors"
+              className="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-blue-600" />
               <span>Export Excel</span>
-            </a>
-            <a
-              href={productService.getExportUrl('csv')}
-              download
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExport('csv')}
               title="Download Data ke CSV"
-              className="px-2 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-semibold"
+              className="px-2 py-1.5 text-slate-500 hover:bg-slate-100 rounded-lg text-xs font-semibold cursor-pointer"
             >
               CSV
-            </a>
+            </button>
           </div>
         </div>
       </div>

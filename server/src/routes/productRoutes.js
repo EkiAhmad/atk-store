@@ -7,9 +7,11 @@ const { verifyToken, requireAdmin } = require('../middlewares/auth');
 // T-06: Seluruh rute produk memerlukan token otentikasi
 router.use(verifyToken);
 
-// Template & Export/Import routes (Khusus Administrator)
-router.get('/template', requireAdmin, productController.downloadTemplate);
-router.get('/template-csv', requireAdmin, productController.downloadCsvTemplate);
+// Template routes (dapat diunduh oleh semua pengguna terautentikasi)
+router.get('/template', productController.downloadTemplate);
+router.get('/template-csv', productController.downloadCsvTemplate);
+
+// Export & Import routes (Khusus Administrator)
 router.get('/export', requireAdmin, productController.exportProducts);
 router.post('/import', requireAdmin, upload.single('file'), productController.importProducts);
 

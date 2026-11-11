@@ -349,7 +349,8 @@ async function downloadTemplate(req, res, next) {
 async function downloadCsvTemplate(req, res, next) {
   try {
     const wb = generateTemplateWorkbook();
-    const csvContent = XLSX.utils.sheet_to_csv(wb.Sheets['Template Produk ATK']);
+    // Tambahkan UTF-8 BOM agar Excel di Windows membuka CSV dengan benar
+    const csvContent = '\uFEFF' + XLSX.utils.sheet_to_csv(wb.Sheets['Template Produk ATK']);
 
     res.setHeader('Content-Disposition', 'attachment; filename="Template_Import_ATK.csv"');
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -505,8 +506,11 @@ async function exportProducts(req, res, next) {
     const { format = 'xlsx', categoryId } = req.query;
 
     const where = { isActive: true };
-    if (categoryId) {
-      where.categoryId = parseInt(categoryId, 10);
+    if (categoryId && categoryId !== 'undefined' && categoryId !== 'null') {
+      const parsedCatId = parseInt(categoryId, 10);
+      if (!isNaN(parsedCatId)) {
+        where.categoryId = parsedCatId;
+      }
     }
 
     const products = await prisma.product.findMany({
@@ -517,10 +521,13 @@ async function exportProducts(req, res, next) {
 
     const wb = generateProductExportWorkbook(products);
 
-    const timestamp = new Date().toISOString().slice(0, 10);
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const timestamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
     if (format === 'csv') {
-      const csv = XLSX.utils.sheet_to_csv(wb.Sheets['Inventaris Produk ATK']);
+      // Tambahkan UTF-8 BOM agar Excel di Windows membuka CSV dengan benar
+      const csv = '\uFEFF' + XLSX.utils.sheet_to_csv(wb.Sheets['Inventaris Produk ATK']);
       res.setHeader('Content-Disposition', `attachment; filename="Inventaris_ATK_${timestamp}.csv"`);
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       return res.send(csv);

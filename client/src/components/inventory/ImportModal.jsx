@@ -12,8 +12,26 @@ export default function ImportModal({ isOpen, onClose, onSuccess }) {
   const [previewErrors, setPreviewErrors] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
   const fileInputRef = useRef(null);
   const toast = useToast();
+
+  const handleDownloadTemplate = async (type = 'xlsx') => {
+    try {
+      setDownloadingTemplate(true);
+      if (type === 'xlsx') {
+        await productService.downloadTemplate();
+        toast.success('Template Excel berhasil diunduh!');
+      } else {
+        await productService.downloadCsvTemplate();
+        toast.success('Template CSV berhasil diunduh!');
+      }
+    } catch (err) {
+      toast.error(err.message || 'Gagal mengunduh template.');
+    } finally {
+      setDownloadingTemplate(false);
+    }
+  };
 
   const resetState = () => {
     setFile(null);
@@ -176,21 +194,23 @@ export default function ImportModal({ isOpen, onClose, onSuccess }) {
             </div>
           </div>
           <div className="flex gap-1.5 flex-shrink-0">
-            <a
-              href={productService.getTemplateUrl()}
-              download
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 transition-colors shadow-xs"
+            <button
+              type="button"
+              disabled={downloadingTemplate}
+              onClick={() => handleDownloadTemplate('xlsx')}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold flex items-center gap-1 transition-colors shadow-xs cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Template Excel</span>
-            </a>
-            <a
-              href={productService.getCsvTemplateUrl()}
-              download
-              className="px-2.5 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 rounded-lg text-xs font-bold transition-colors"
+              <span>{downloadingTemplate ? 'Mengunduh...' : 'Template Excel'}</span>
+            </button>
+            <button
+              type="button"
+              disabled={downloadingTemplate}
+              onClick={() => handleDownloadTemplate('csv')}
+              className="px-2.5 py-1.5 bg-emerald-100 hover:bg-emerald-200 disabled:opacity-50 text-emerald-800 rounded-lg text-xs font-bold transition-colors cursor-pointer"
             >
               CSV
-            </a>
+            </button>
           </div>
         </div>
 

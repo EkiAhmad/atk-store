@@ -109,6 +109,20 @@ export default function ReportsPage() {
     toast.success('Laporan PDF berhasil diunduh!');
   };
 
+  const handleExportExcel = async () => {
+    try {
+      if (!reportData || !reportData.transactions.length) {
+        toast.warning('Tidak ada data transaksi untuk diekspor.');
+        return;
+      }
+      toast.info('Menyiapkan file laporan Excel...');
+      await reportService.exportSalesExcel(getDateRange());
+      toast.success('Laporan penjualan Excel berhasil diunduh!');
+    } catch (err) {
+      toast.error(err.message || 'Gagal mengekspor laporan Excel.');
+    }
+  };
+
   const handleViewReceipt = async (transaction) => {
     try {
       const res = await transactionService.getTransactionById(transaction.id);
@@ -252,14 +266,14 @@ export default function ReportsPage() {
           )}
 
           {/* Export Buttons */}
-          <a
-            href={reportService.getExportExcelUrl(getDateRange())}
-            download
-            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
           >
             <Download className="w-4 h-4 text-emerald-600" />
             <span>Excel (.xlsx)</span>
-          </a>
+          </button>
 
           <button
             type="button"
