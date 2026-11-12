@@ -16,7 +16,7 @@ export default function ReceiptModal({ isOpen, onClose, transaction, store, onNe
     generateReceiptPdf({ store, transaction });
   };
 
-  const storeName = store?.name || 'TOKO ATK BAROKAH';
+  const storeName = store?.name || 'TOKO BAROKAH';
   const storeAddress = store?.address || 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk';
   const storePhone = store?.phone || '081259878173';
   const footerNote = store?.receiptFooter || 'Terima kasih atas kunjungan Anda!\nBarang yang dibeli tidak dapat ditukar/dikembalikan.';

@@ -4,7 +4,7 @@ import { settingService } from '../../services/settingService';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar({ activeTab, setActiveTab }) {
-  const [storeName, setStoreName] = useState('TOKO ATK BAROKAH');
+  const [storeName, setStoreName] = useState('TOKO BAROKAH');
   const [currentTime, setCurrentTime] = useState(new Date());
   const { user, logout, isAdmin } = useAuth();
 

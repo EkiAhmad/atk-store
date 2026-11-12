@@ -8,7 +8,7 @@ import { formatCurrency, formatDateTime } from './formatters';
 export function generateSalesReportPdf({ store, summary, transactions, dateRangeLabel }) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  const storeName = store?.name || 'TOKO ATK BAROKAH';
+  const storeName = store?.name || 'TOKO BAROKAH';
   const storeAddress = store?.address || 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk';
   const storePhone = store?.phone || '081259878173';
 
@@ -129,7 +129,7 @@ export function generateSalesReportPdf({ store, summary, transactions, dateRange
 export function generateReceiptPdf({ store, transaction }) {
   const doc = new jsPDF({ unit: 'mm', format: [80, 200] }); // 80mm roll width
 
-  const storeName = store?.name || 'TOKO ATK BAROKAH';
+  const storeName = store?.name || 'TOKO BAROKAH';
   const storeAddress = store?.address || 'Jl. KH. Dewantoro No. 1 Rejoso - Nganjuk';
   const storePhone = store?.phone || '081259878173';
   const footer = store?.receiptFooter || 'Terima kasih atas kunjungan Anda!';
