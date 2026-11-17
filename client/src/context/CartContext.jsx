@@ -5,7 +5,8 @@ const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountType, setDiscountType] = useState('nominal'); // 'nominal' (Rp) | 'percent' (%)
+  const [discountValue, setDiscountValue] = useState(0); // Nilai masukan kasir
   const [cashierName, setCashierName] = useState('Kasir Toko');
   const [notes, setNotes] = useState('');
   const toast = useToast();
@@ -106,17 +107,63 @@ export function CartProvider({ children }) {
     setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
   }, []);
 
-  // Clear all cart
-  const clearCart = useCallback(() => {
-    setCartItems([]);
-    setDiscountAmount(0);
-    setNotes('');
-  }, []);
-
-  // Derived calculations
+  // Derived subtotal
   const subtotal = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + item.subtotal, 0);
   }, [cartItems]);
+
+  // Derived discountAmount (selalu divalidasi dan di-clamp: 0 <= discountAmount <= subtotal)
+  const discountAmount = useMemo(() => {
+    if (subtotal <= 0) return 0;
+    if (discountType === 'percent') {
+      const pct = Math.min(100, Math.max(0, parseFloat(discountValue) || 0));
+      return Math.round((subtotal * pct) / 100);
+    }
+    const nom = Math.max(0, parseFloat(discountValue) || 0);
+    return Math.min(subtotal, nom);
+  }, [discountType, discountValue, subtotal]);
+
+  // Derived discountPercent (selalu di-clamp: 0 <= discountPercent <= 100)
+  const discountPercent = useMemo(() => {
+    if (discountType === 'percent') {
+      return Math.min(100, Math.max(0, parseFloat(discountValue) || 0));
+    }
+    if (subtotal > 0) {
+      return Math.min(100, Math.round((discountAmount / subtotal) * 100));
+    }
+    return 0;
+  }, [discountType, discountValue, discountAmount, subtotal]);
+
+  // Helper set discount
+  const setDiscount = useCallback((type, value) => {
+    const parsed = Math.max(0, parseFloat(value) || 0);
+    if (type === 'percent') {
+      setDiscountType('percent');
+      setDiscountValue(Math.min(100, parsed));
+    } else {
+      setDiscountType('nominal');
+      setDiscountValue(parsed);
+    }
+  }, []);
+
+  // Backward compatibility setter
+  const setDiscountAmount = useCallback((amt) => {
+    setDiscount('nominal', amt);
+  }, [setDiscount]);
+
+  // Clear discount
+  const clearDiscount = useCallback(() => {
+    setDiscountValue(0);
+    setDiscountType('nominal');
+  }, []);
+
+  // Clear all cart
+  const clearCart = useCallback(() => {
+    setCartItems([]);
+    setDiscountValue(0);
+    setDiscountType('nominal');
+    setNotes('');
+  }, []);
 
   const totalItemsCount = useMemo(() => {
     return cartItems.reduce((acc, item) => acc + item.quantity, 0);
@@ -134,8 +181,15 @@ export function CartProvider({ children }) {
         updateQuantity,
         removeFromCart,
         clearCart,
+        discountType,
+        setDiscountType,
+        discountValue,
+        setDiscountValue,
+        discountPercent,
         discountAmount,
         setDiscountAmount,
+        setDiscount,
+        clearDiscount,
         cashierName,
         setCashierName,
         notes,

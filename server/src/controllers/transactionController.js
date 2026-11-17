@@ -132,7 +132,15 @@ async function createTransaction(req, res, next) {
             });
           }
 
-          const discount = Math.max(0, parseFloat(discountAmount) || 0);
+          const rawDiscount = parseFloat(discountAmount) || 0;
+          if (rawDiscount < 0) {
+            throw validationError('Nilai diskon tidak boleh bernilai negatif (kurang dari 0).');
+          }
+          if (rawDiscount > totalAmount) {
+            throw validationError(`Nilai diskon (Rp ${rawDiscount.toLocaleString('id-ID')}) tidak boleh melebihi total belanja (Rp ${totalAmount.toLocaleString('id-ID')}).`);
+          }
+
+          const discount = rawDiscount;
           const tax = Math.max(0, parseFloat(taxAmount) || 0);
           const finalAmount = Math.max(0, totalAmount - discount + tax);
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Percent, Tag, User } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Percent, Tag, User, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatCurrency } from '../../utils/formatters';
@@ -12,8 +12,12 @@ export default function CartPanel({ onOpenPaymentModal }) {
     removeFromCart,
     clearCart,
     subtotal,
+    discountType,
+    discountValue,
     discountAmount,
-    setDiscountAmount,
+    discountPercent,
+    setDiscount,
+    clearDiscount,
     finalTotal,
     totalItemsCount,
     cashierName,
@@ -137,45 +141,148 @@ export default function CartPanel({ onOpenPaymentModal }) {
           <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
         </div>
 
-        {/* Discount Toggle / Input */}
-        <div>
+        {/* Discount Section */}
+        <div className="pt-2 border-t border-slate-100">
           {showDiscountInput ? (
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <span className="text-xs text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 font-bold">Rp</span>
-                <input
-                  type="number"
-                  min="0"
-                  max={subtotal}
-                  value={discountAmount || ''}
-                  onChange={(e) => setDiscountAmount(Math.min(subtotal, Math.max(0, parseFloat(e.target.value) || 0)))}
-                  placeholder="0"
-                  className="w-full pl-8 pr-2 py-1 text-xs bg-white rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                />
+            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-slate-700">Tentukan Diskon</span>
+                {/* Switcher Tab Rp vs % */}
+                <div className="flex bg-slate-200/80 p-0.5 rounded-lg text-[10px] font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setDiscount('nominal', discountType === 'percent' ? discountAmount : discountValue)}
+                    className={`px-2 py-0.5 rounded-md transition-all ${
+                      discountType === 'nominal'
+                        ? 'bg-white text-emerald-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Rp (Nominal)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentPct = discountType === 'percent'
+                        ? discountValue
+                        : (subtotal > 0 ? Math.min(100, Math.round((discountAmount / subtotal) * 100)) : 0);
+                      setDiscount('percent', currentPct);
+                    }}
+                    className={`px-2 py-0.5 rounded-md transition-all ${
+                      discountType === 'percent'
+                        ? 'bg-white text-emerald-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    % (Persen)
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setDiscountAmount(0);
-                  setShowDiscountInput(false);
-                }}
-                className="text-[11px] text-slate-500 hover:text-slate-800"
-              >
-                Batal
-              </button>
+
+              {/* Input Control */}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="text-xs text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 font-bold">
+                    {discountType === 'nominal' ? 'Rp' : '%'}
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    max={discountType === 'percent' ? 100 : subtotal}
+                    value={discountValue || ''}
+                    onKeyDown={(e) => {
+                      if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') {
+                        setDiscount(discountType, 0);
+                        return;
+                      }
+                      const num = parseFloat(val);
+                      if (isNaN(num)) return;
+                      if (discountType === 'percent') {
+                        // Strict clamp 0 - 100
+                        const clamped = Math.min(100, Math.max(0, num));
+                        setDiscount('percent', clamped);
+                      } else {
+                        // Strict clamp 0 - subtotal
+                        const clamped = Math.min(subtotal, Math.max(0, num));
+                        setDiscount('nominal', clamped);
+                      }
+                    }}
+                    placeholder="0"
+                    className="w-full pl-8 pr-2 py-1.5 text-xs font-bold text-slate-800 bg-white rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDiscountInput(false)}
+                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition-colors shadow-xs"
+                >
+                  Selesai
+                </button>
+              </div>
+
+              {/* Quick Presets for % mode */}
+              {discountType === 'percent' && (
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-slate-400 font-medium">Preset:</span>
+                  {[5, 10, 15, 20].map((pct) => (
+                    <button
+                      type="button"
+                      key={pct}
+                      onClick={() => setDiscount('percent', pct)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                        discountValue === pct
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      {pct}%
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Real-time calculated feedback */}
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-[11px] bg-rose-50/80 px-2 py-1 rounded-md text-rose-700 font-medium">
+                  <span>Potongan Harga:</span>
+                  <span className="font-bold">-{formatCurrency(discountAmount)} ({discountPercent}%)</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-between text-xs">
               <button
                 type="button"
                 onClick={() => setShowDiscountInput(true)}
-                className="text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1"
+                className="text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1.5 transition-colors"
               >
                 <Tag className="w-3.5 h-3.5" />
-                <span>+ Tambah Diskon Potongan</span>
+                <span>{discountAmount > 0 ? 'Ubah Diskon' : '+ Tambah Diskon'}</span>
               </button>
               {discountAmount > 0 && (
-                <span className="font-semibold text-rose-600">-{formatCurrency(discountAmount)}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-rose-600 text-xs">
+                    {discountType === 'percent' ? `(${discountValue}%) ` : ''}-{formatCurrency(discountAmount)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearDiscount();
+                      setShowDiscountInput(false);
+                    }}
+                    title="Hapus Diskon"
+                    className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               )}
             </div>
           )}

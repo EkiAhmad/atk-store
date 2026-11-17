@@ -246,6 +246,39 @@ async function runTests() {
   }, { authorization: `Bearer ${kasirToken}` });
   assert(resUnderPaid.status === 400, 'Validasi uang tunai kurang mengembalikan HTTP 400 (T-08)');
 
+  // Uji Diskon Kurang Dari 0 (< 0) Harus Ditolak HTTP 400
+  const resNegativeDiscount = await request('POST', '/api/transactions', {
+    items: [{ productId: createdProdId, quantity: 1 }],
+    paymentMethod: 'CASH',
+    amountPaid: 10000,
+    discountAmount: -2000,
+  }, { authorization: `Bearer ${kasirToken}` });
+  assert(resNegativeDiscount.status === 400, 'Validasi diskon negatif (< 0) ditolak dengan HTTP 400');
+
+  // Uji Diskon Melebihi Total Belanja (> 100%) Harus Ditolak HTTP 400
+  const resExcessDiscount = await request('POST', '/api/transactions', {
+    items: [{ productId: createdProdId, quantity: 1 }], // 8000
+    paymentMethod: 'CASH',
+    amountPaid: 10000,
+    discountAmount: 15000, // melebihi 8000
+  }, { authorization: `Bearer ${kasirToken}` });
+  assert(resExcessDiscount.status === 400, 'Validasi diskon melebihi 100% total belanja ditolak dengan HTTP 400');
+
+  // Uji Diskon Persen/Valid (Subtotal 16.000, diskon 10% = 1.600 -> final 14.400)
+  const resValidDiscount = await request('POST', '/api/transactions', {
+    items: [{ productId: createdProdId, quantity: 2 }], // 2 * 8000 = 16000
+    paymentMethod: 'CASH',
+    amountPaid: 20000,
+    discountAmount: 1600,
+  }, { authorization: `Bearer ${kasirToken}` });
+  assert(
+    resValidDiscount.status === 201 &&
+    Number(resValidDiscount.data.data.discountAmount) === 1600 &&
+    Number(resValidDiscount.data.data.finalAmount) === 14400 &&
+    Number(resValidDiscount.data.data.changeAmount) === 5600,
+    'Perhitungan diskon valid (10% = Rp 1.600) dan kembalian tunai akurat'
+  );
+
   // Checkout Sukses Transaksi TUNAI oleh Kasir
   const stockBeforeSale = (await prisma.product.findUnique({ where: { id: createdProdId } })).stock;
   const resCheckoutCash = await request('POST', '/api/transactions', {
